@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <import resource="spring-dao.xml"/>
+    <import resource="spring-redis.xml"/>
+    <context:component-scan base-package="com.imooc"/> <!-- 扫描路径 -->
+    <!--创建shiro过滤器-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean" >
+        <property name="securityManager"  ref="securityManager"/>
+        <property name="loginUrl" value="login.html"/>
+        <property name="unauthorizedUrl" value="404.html"/> <!-- 当没有授权时会跳转到404页面 -->
+        <!--过滤器链   有顺序-->
+        <property name="filterChainDefinitions">
+            <value>
+                /login.html = anon  <!-- 不需要认证-->
+                /subLogin = anon
+                /testRole = rolesOr["admin","admin1"]
+                /testRole1 = rolesOr["admin","admin1"]
+                <!--/testRole = roles["admin"]  这些是shiro内置的过滤器，上面是自定义的过滤器-->
+                <!--/testRole1 = roles["admin","admin1"]-->
+                <!--/testPerms = perms["user:delete"]-->
+                <!--/testPerms1 = perms["user:delete", "user:update"]-->
+                /* = authc          <!-- 需要认证-->
+            </value>
+        </property>
+        <property name="filters">
+            <util:map>
+                <entry key="rolesOr" value-ref="rolesOrFilter"/>
+            </util:map>
+        </property>
+
+     </bean>
+    <!--// 创建自定义filter-->
+    <bean class="com.imooc.filter.RolesOrFilter" id="rolesOrFilter"/>
+
+    <!--创建securityManager对象-->
+    <bean class="org.apache.shiro.mgt.DefaultSecurityManager" id="securityManager">
+        <property name="realm" ref="realm" />
+        <property name="sessionManager" ref="sessionManager"/>
+        <property name="cacheManager"  ref="cacheManager"/>
+    </bean>
+
+    <bean class="com.imooc.shiro.realm.CustomRealm" id="realm">
+        <property name="credentialsMatcher" ref="credentialsMatcher"/> <!-- 把加密算法设置到自定义的realm中 -->
+
+    </bean>
+
+    <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher" id="credentialsMatcher">
+        <property name="hashAlgorithmName" value="md5" />
+        <property name="hashIterations" value="1"/>
+    </bean>
+
+    <!--<bean class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager" id="sessionManager">  shiro自带的sessionManager;-->
+    <bean class="com.imooc.session.CustomSessionManager" id="sessionManager"> <!-- 自定义的sessionManager-->
+        <property name="sessionDAO" ref="redisSessionDao"/>
+    </bean>
+
+    <bean class="com.imooc.session.RedisSessionDao" id="redisSessionDao"/>
+
+    <bean class="com.imooc.cache.RedisCacheManager" id="cacheManager"/>
+</beans>
