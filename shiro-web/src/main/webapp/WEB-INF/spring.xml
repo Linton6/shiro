@@ -52,7 +52,7 @@
 
     </bean>
 
-    <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher" id="credentialsMatcher">
+    <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher" id="credentialsMatcher" >
         <property name="hashAlgorithmName" value="md5" />
         <property name="hashIterations" value="1"/>
     </bean>
@@ -60,6 +60,7 @@
     <!--<bean class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager" id="sessionManager">  shiro自带的sessionManager;-->
     <bean class="com.imooc.session.CustomSessionManager" id="sessionManager"> <!-- 自定义的sessionManager-->
         <property name="sessionDAO" ref="redisSessionDao"/>
+        <!--ref属性:用来给一个对象的属性赋值，指的是Spring装配？？？-->
     </bean>
 
     <bean class="com.imooc.session.RedisSessionDao" id="redisSessionDao"/>

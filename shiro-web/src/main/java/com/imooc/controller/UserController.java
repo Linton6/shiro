@@ -1,5 +1,6 @@
 package com.imooc.controller;
 
+import com.imooc.dao.UserDao;
 import com.imooc.vo.User;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
+
 
 /**
  * @Author Linton
@@ -23,6 +26,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class UserController {
+
+    @Resource
+    private UserDao userDao;
 
     @RequestMapping(value = "/subLogin", method = RequestMethod.POST ,
     produces = "application/json;charset=utf-8")

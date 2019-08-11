@@ -1527,7 +1527,7 @@ c</ColNames>
     </column>
     <column id="371" parent="263" name="last_update_time">
       <Position>4</Position>
-      <Comment>最后更新时间 </Comment>
+      <Comment>最后更新时间</Comment>
       <DataType>timestamp|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>

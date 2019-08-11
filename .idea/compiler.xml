@@ -8,7 +8,12 @@
         <outputRelativeToContentRoot value="true" />
         <module name="shiro-test" />
         <module name="shiro-web" />
+        <module name="websocket" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="learn" target="1.5" />
+      <module name="WebSocket" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
