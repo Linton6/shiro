@@ -7,10 +7,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
+
+import java.util.Date;
 
 /**
  * @Author Linton
@@ -55,9 +55,36 @@ public class MyWebSocketHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof FullHttpRequest) {
             handHttpRequest(context, (FullHttpRequest) msg);
         } else if (msg instanceof WebSocketFrame) { // 处理websocket连接业务
-
+            handWebsocketFrame(context, (WebSocketFrame)msg);
         }
 
+
+    }
+
+    /**
+     * c处理客户端与服务端之间的websocket业务
+     */
+    private void handWebsocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+        // 判断是否是关闭websocket的指令
+        if (frame instanceof CloseWebSocketFrame) {
+            handshaker.close(ctx.channel(), (CloseWebSocketFrame)frame.retain());
+        }
+        // 判断是否是ping消息
+        if (frame instanceof PingWebSocketFrame) {
+            ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
+        }
+        // 判断是否是二进制消息，如果是二进制消息，抛出异常
+        if (!(frame instanceof  TextWebSocketFrame)) {
+            System.out.println("目前我们不支持二进制消息");
+            throw new RuntimeException("【" + this.getClass().getName()+"】不支持消息");
+        }
+        // 返回应答消息
+        // 获取客户端向服务端发送的消息
+        String request = ((TextWebSocketFrame)frame).text();
+        System.out.println("服务端收到客户端的消息===>>> " + request);
+        TextWebSocketFrame tws = new TextWebSocketFrame(new Date().toString() + ctx.channel().id() + " ===>>> " +request);
+        // 群发，服务端向每一个连接的客户端群发消息
+        NettyConfig.group.writeAndFlush(tws);
 
     }
 
